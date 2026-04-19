@@ -20,6 +20,12 @@ _WARN_REPEAT_PHRASES = [
     "Смотритель закрывает книгу. Встаёт. Один короткий взгляд на {mention} — и в зале всё понимают.\n— {reason}\n*Предупреждение {count}.*",
 ]
 
+_UNWARN_PHRASES = [
+    "Смотритель берёт перо и зачёркивает строку в книге. {mention} — чист.",
+    "Смотритель делает пометку. Прошлое остаётся в прошлом. {mention} получает чистый лист.",
+    "Перо скользит по странице. Смотритель закрывает книгу и смотрит на {mention} без прежней тяжести.",
+]
+
 _KICK_PHRASES = [
     "Смотритель поднимается и молча указывает {mention} на выход. Тот уходит.\n*Причина: {reason}*",
     "В зале тихо. Смотритель кивает {mention} на дверь. Спорить не принято.\n*Причина: {reason}*",
@@ -100,15 +106,27 @@ class ModerationCog(commands.Cog, name="Moderation"):
         self,
         interaction: discord.Interaction,
         member: discord.Member,
+        note: str | None = None,
     ) -> None:
         assert interaction.guild is not None
+        config = await queries.get_guild_config(interaction.guild.id)
         remaining = await queries.remove_last_warning(interaction.guild.id, member.id)
+
+        phrase = random.choice(_UNWARN_PHRASES).format(mention=member.mention)
+        if note:
+            phrase += f"\n— {note}"
+
+        if config and config.get("public_channel_id"):
+            ch = interaction.guild.get_channel(int(config["public_channel_id"]))
+            if isinstance(ch, discord.TextChannel):
+                await ch.send(phrase)
+
         await self.bot.send_log(  # type: ignore[attr-defined]
             interaction.guild,
             f"↩️ **{interaction.user}** снял предупреждение с {member.mention}. Осталось: {remaining}",
         )
         await interaction.response.send_message(
-            f"Последнее предупреждение снято. Осталось: **{remaining}**.", ephemeral=True
+            f"Предупреждение снято. Осталось: **{remaining}**.", ephemeral=True
         )
 
     @app_commands.command(name="kick", description="Выгнать участника из таверны")

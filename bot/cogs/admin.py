@@ -66,7 +66,7 @@ class AdminCog(commands.Cog, name="Admin"):
             f"Канал правил: {channel.mention}", ephemeral=True
         )
 
-    @set_group.command(name="public_channel", description="Канал для атмосферных сообщений бота")
+    @set_group.command(name="public_channel", description="Канал для предупреждений, кика и голосовых событий")
     async def set_public_channel(
         self, interaction: discord.Interaction, channel: discord.TextChannel
     ) -> None:
@@ -75,6 +75,17 @@ class AdminCog(commands.Cog, name="Admin"):
         await queries.set_guild_field(interaction.guild_id, "public_channel_id", channel.id)
         await interaction.response.send_message(
             f"Публичный канал: {channel.mention}", ephemeral=True
+        )
+
+    @set_group.command(name="guests_channel", description="Канал для сообщений о новых гостях")
+    async def set_guests_channel(
+        self, interaction: discord.Interaction, channel: discord.TextChannel
+    ) -> None:
+        assert interaction.guild_id is not None
+        await queries.ensure_guild_config(interaction.guild_id)
+        await queries.set_guild_field(interaction.guild_id, "guests_channel_id", channel.id)
+        await interaction.response.send_message(
+            f"Канал новых гостей: {channel.mention}", ephemeral=True
         )
 
     @set_group.command(name="mod_channel", description="Канал для команд модерации")
@@ -148,6 +159,7 @@ class AdminCog(commands.Cog, name="Admin"):
             f"Роль нарушителя: {fmt_role(config.get('warn_role_id'))}",
             f"Порог предупреждений: **{config.get('warn_threshold') or 2}**",
             f"Канал правил: {fmt_ch(config.get('greeting_channel_id'))}",
+            f"Канал новых гостей: {fmt_ch(config.get('guests_channel_id'))}",
             f"Публичный канал: {fmt_ch(config.get('public_channel_id'))}",
             f"Канал модераторов: {fmt_ch(config.get('mod_channel_id'))}",
             f"Канал логов: {fmt_ch(config.get('log_channel_id'))}",

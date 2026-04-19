@@ -26,8 +26,9 @@ class GreetingsCog(commands.Cog, name="Greetings"):
                 except discord.Forbidden:
                     pass
 
-        if config.get("public_channel_id"):
-            channel = guild.get_channel(int(config["public_channel_id"]))
+        ch_id = config.get("guests_channel_id") or config.get("public_channel_id")
+        if ch_id:
+            channel = guild.get_channel(int(ch_id))
             if isinstance(channel, discord.TextChannel):
                 last_index = int(config.get("last_phrase_index") or -1)
                 phrase, new_index = pick_phrase(last_index)

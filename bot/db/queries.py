@@ -12,6 +12,7 @@ _VALID_FIELDS = frozenset(
         "warn_role_id",
         "greeting_channel_id",
         "public_channel_id",
+        "guests_channel_id",
         "mod_channel_id",
         "log_channel_id",
         "warn_threshold",

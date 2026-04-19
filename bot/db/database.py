@@ -32,4 +32,10 @@ async def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     async with aiosqlite.connect(DB_PATH) as db:
         await db.executescript(_SCHEMA)
+        # Миграции: новые колонки добавляются здесь
+        for column in ("guests_channel_id INTEGER",):
+            try:
+                await db.execute(f"ALTER TABLE guild_config ADD COLUMN {column}")
+            except Exception:
+                pass  # колонка уже существует
         await db.commit()
