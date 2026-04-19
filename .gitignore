@@ -1,0 +1,6 @@
+.env
+data/tavern.db
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.venv/
